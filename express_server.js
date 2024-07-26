@@ -7,6 +7,10 @@ const urlDatatbase = {
   '9sm5xK': 'http://www.google.com'
 };
 
+app.get('/urls.json', (req, res) => {
+  res.json(urlDatatbase)
+});
+
 app.get('/', (req, res) => {
   res.send('Hello');
 });
