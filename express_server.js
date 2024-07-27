@@ -49,6 +49,12 @@ app.get('/urls/new', (req, res) => {
   res.render('urls_new');
 });
 
+app.get('/u/:id', (req, res) => {
+  const shortURLID = req.params.id;
+  const longURL = urlDatabase[shortURLID];
+  res.redirect(longURL);
+});
+
 //when using the small data links inside urldatabse it'll output the larger one on screen
 app.get("/urls/:id", (req, res) => {
   const id = req.params.id;
