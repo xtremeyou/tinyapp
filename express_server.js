@@ -35,7 +35,7 @@ app.get('/urls', (req, res) => {
   res.render('urls_index', templateVars);
 });
 
-
+//generates randomString, ouputs the long url to terminal, then sends random string to /urls path
 app.post('/urls', (req, res) => {
   const shortURL = generateRandomString();
   console.log(req.body);
