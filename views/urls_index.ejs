@@ -7,6 +7,8 @@
       content="width=device-width, initial-scale=1, shrink-to-fit=no"
     />
 
+    <%- include('./partials/_header.ejs); %>
+
     <!-- Bootstrap CSS -->
     <link
       rel="stylesheet"
@@ -46,7 +48,7 @@
           <tr>
             <th scope="col">Short URL ID</th>
             <th scope="col">Long URL</th>
-            <th scope="col">Link shorteners</th>
+            <th scope="col" href="/urls/new">Click to shorten link!</th>
           </tr>
         </thead>
         <tbody>
