@@ -19,7 +19,7 @@
   <body>
 
     <%- include('partials/_header'); %>
-
+    
     <main style="margin: 1em;">
       <h3>My URLs</h3>
       <table class="table">
@@ -27,7 +27,7 @@
           <tr>
             <th scope="col">Short URL ID</th>
             <th scope="col">Long URL</th>
-            <th scope="col" href="/urls/new">Click to Shorten URLs</th>
+            <th scope="col">Delete</th>
           </tr>
         </thead>
         <tbody>
@@ -35,7 +35,11 @@
             <tr>
               <td><%= id %></td>
               <td><%= urls[id] %></td>
-              <td><a href="#">Shorten URL</a></td>
+              <td>
+                <form method="POST" action="/urls/<%= id %>/delete">
+                  <button type="submit">Delete</button>
+                </form>
+              </td>
             </tr>
           <% } %>
         </tbody>
