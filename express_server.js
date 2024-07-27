@@ -13,6 +13,11 @@ app.get('/urls.json', (req, res) => {
   res.json(urlDatatbase);
 });
 
+app.get('/urls', (req, res) => {
+  const templateVars = { urls: urlDatatbase};
+  res.render('urls_index', templateVars);
+});
+
 app.get('/hello', (req, res) => {
   res.send('<html><body>Herro <b>World</b></body></html>\n');
 });
