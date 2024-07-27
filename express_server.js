@@ -21,6 +21,10 @@ app.get('/urls', (req, res) => {
   res.render('urls_index', templateVars);
 });
 
+app.get('/urls/new', (req, res) => {
+  res.render('urls_new');
+});
+
 //when using the small data links inside urldatabse it'll output the larger one on screen
 app.get("/urls/:id", (req, res) => {
   const id = req.params.id;
