@@ -34,14 +34,16 @@ app.get('/urls', (req, res) => {
   res.render('urls_index', templateVars);
 });
 
-
+//posts data from longURl to the database with a generated shortURl
+//console.logs both longURl and shortURl
+//redirects shortURl to urls_show view
 app.post("/urls", (req, res) => {
   const longURL = req.body.longURL;
   const shortURLID = generateRandomString();
   urlDatabase[shortURLID] = longURL;
   console.log(`longURL: ${longURL}`);
   console.log(`short URL ID: ${shortURLID}`);
-  res.redirect(`/urls/${shortURLID}`); // Respond with 'Ok' (we will replace this)
+  res.redirect(`/urls/${shortURLID}`);
 });
 
 //connects the view file to our server as well as adding a path to it
@@ -49,6 +51,7 @@ app.get('/urls/new', (req, res) => {
   res.render('urls_new');
 });
 
+//redirects shortURL to longUrl in database, so b2xVn2 redirects to lighthouselab.com
 app.get('/u/:id', (req, res) => {
   const shortURLID = req.params.id;
   const longURL = urlDatabase[shortURLID];
