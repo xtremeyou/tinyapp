@@ -15,14 +15,13 @@ const generateRandomString = () => {
 
   return randomString;
 };
+app.use(express.urlencoded({ extended: true }));
 
 //creates a database to use our templates
 const urlDatabase = {
   b2xVn2: 'http://www.lighthouselabs.ca',
   '9sm5xK': 'http://www.google.com'
 };
-
-app.use(express.urlencoded({ extended: true }));
 
 //sends a json respones containing the data of the urldatabase object
 app.get('/urls.json', (req, res) => {
@@ -35,19 +34,20 @@ app.get('/urls', (req, res) => {
   res.render('urls_index', templateVars);
 });
 
-//generates randomString, ouputs the long url to terminal, then sends random string to /urls path
-app.post('/urls', (req, res) => {
-  const shortURL = generateRandomString();
-  console.log(req.body);
-  res.send(shortURL);
+
+app.post("/urls", (req, res) => {
+  const longURL = req.body.longURL;
+  const shortURLID = generateRandomString();
+  urlDatabase[shortURLID] = longURL;
+  console.log(`longURL: ${longURL}`);
+  console.log(`short URL ID: ${shortURLID}`);
+  res.redirect(`/urls/${shortURLID}`); // Respond with 'Ok' (we will replace this)
 });
 
 //connects the view file to our server as well as adding a path to it
 app.get('/urls/new', (req, res) => {
   res.render('urls_new');
 });
-
-
 
 //when using the small data links inside urldatabse it'll output the larger one on screen
 app.get("/urls/:id", (req, res) => {
