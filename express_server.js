@@ -23,15 +23,25 @@ app.get('/urls', (req, res) => {
   res.render('urls_index', templateVars);
 });
 
+//Once we input data into the urls/new, it'll redirect us to /urls with a response saying Ok
+//there will also be consol logged data within our terminal that says the inputs of the form
+app.post('/urls', (req, res) => {
+  console.log(req.body);
+  res.send('Ok');
+});
+
+//connects the view file to our server as well as adding a path to it
 app.get('/urls/new', (req, res) => {
   res.render('urls_new');
 });
+
+
 
 //when using the small data links inside urldatabse it'll output the larger one on screen
 app.get("/urls/:id", (req, res) => {
   const id = req.params.id;
   const longURL = urlDatabase[id];
-  const templateVars = {id: req.params.id, longURL: longURL };
+  const templateVars = { id: req.params.id, longURL: longURL };
   res.render('urls_show', templateVars);
 });
 
