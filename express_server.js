@@ -4,6 +4,18 @@ const PORT = 8080;
 
 app.set('view engine', 'ejs');
 
+//create function to generate random string
+const generateRandomString = () => {
+  const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  let randomString = '';
+  
+  while (randomString.length < 6) {
+    randomString += characters[Math.floor(Math.random() * characters.length)];
+  }
+
+  return randomString;
+};
+
 //creates a database to use our templates
 const urlDatabase = {
   b2xVn2: 'http://www.lighthouselabs.ca',
@@ -23,11 +35,11 @@ app.get('/urls', (req, res) => {
   res.render('urls_index', templateVars);
 });
 
-//Once we input data into the urls/new, it'll redirect us to /urls with a response saying Ok
-//there will also be consol logged data within our terminal that says the inputs of the form
+
 app.post('/urls', (req, res) => {
+  const shortURL = generateRandomString();
   console.log(req.body);
-  res.send('Ok');
+  res.send(shortURL);
 });
 
 //connects the view file to our server as well as adding a path to it
