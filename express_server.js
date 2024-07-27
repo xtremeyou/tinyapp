@@ -10,6 +10,8 @@ const urlDatabase = {
   '9sm5xK': 'http://www.google.com'
 };
 
+app.use(express.urlencoded({ extended: true }));
+
 //sends a json respones containing the data of the urldatabase object
 app.get('/urls.json', (req, res) => {
   res.json(urlDatabase);
