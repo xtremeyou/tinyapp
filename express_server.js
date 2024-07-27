@@ -43,7 +43,7 @@ app.post("/urls", (req, res) => {
   urlDatabase[shortURLID] = longURL;
   console.log(`longURL: ${longURL}`);
   console.log(`short URL ID: ${shortURLID}`);
-  res.redirect(`/urls/${shortURLID}`);
+  res.redirect('/urls/', shortURLID);
 });
 
 //connects the view file to our server as well as adding a path to it
@@ -51,7 +51,7 @@ app.get('/urls/new', (req, res) => {
   res.render('urls_new');
 });
 
-//redirects shortURL to longUrl in database, so b2xVn2 redirects to lighthouselab.com
+//redirects shortURL to longUrl in database, so for example b2xVn2 redirects to lighthouselab.com
 app.get('/u/:id', (req, res) => {
   const shortURLID = req.params.id;
   const longURL = urlDatabase[shortURLID];
