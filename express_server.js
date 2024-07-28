@@ -2,6 +2,9 @@ const express = require('express');
 const app = express();
 const PORT = 8080;
 
+
+app.use(express.urlencoded({ extended: true })); //allow us to read req.params.body in human readable form
+
 app.set('view engine', 'ejs');
 
 //create function to generate random string
@@ -15,7 +18,6 @@ const generateRandomString = () => {
 
   return randomString;
 };
-app.use(express.urlencoded({ extended: true })); //allow us to read req.params.body in human readable form
 
 //creates a database to use our templates
 const urlDatabase = {
@@ -61,6 +63,12 @@ app.post('/urls/:id', (req, res) => {
 //connects the view file to our server as well as adding a path to it
 app.get('/urls/new', (req, res) => {
   res.render('urls_new'); //renders a new view "urls_new"
+});
+
+app.post('/login', (req, res) => {
+  const userName = req.body.username;
+  res.cookie('username',userName);
+  res.redirect('/urls');
 });
 
 
