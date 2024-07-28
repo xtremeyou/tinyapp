@@ -45,9 +45,19 @@ app.post('/urls', (req, res) => {
 
 app.post('/urls/:id', (req, res) => {
   const id = req.params.id; //assigns id to id of the route path
-  const newLongURL = req.body.longURL; //assign newLongURL the data of the longURL data from the form submitted
-  urlDatabase[id] = newLongURL; //assigns key of urlDatabase a newlongURL value
-  res.redirect('/urls'); //redirects to path /urls which is the page that lists our created urls
+  const newLongURL = req.body.longURL; //assign newLongURL the data of the longURL data from the form submitted 
+  try {
+    if (!urlDatabase[id]) { //checks if urlDatabase has no keys, if so it will throw error
+      throw new Error("You need to update an already exisiting url");
+    }
+    urlDatabase[id] = newLongURL;//assigns key of urlDatabase a newlongURL value
+    res.redirect('/urls'); //redirects to path /urls which is the page that lists our created urls
+  } catch (error) {
+    console.log(error);//will catch error if error happens, display an error output to console
+    res.status(404).render('error', {message: error.message}); //will render error page if error
+  }
+  
+  
 });
 
 //connects the view file to our server as well as adding a path to it
