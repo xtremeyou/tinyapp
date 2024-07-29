@@ -66,9 +66,9 @@ app.get('/urls/new', (req, res) => {
 });
 
 app.post('/login', (req, res) => {
-  const userName = req.body.username;
-  res.cookie('username',userName);
-  res.redirect('/urls');
+  const userName = req.body.username; //gets body data from username form in _header.js
+  res.cookie('username',userName); //adds name for cookies, then a value of username
+  res.redirect('/urls'); //redirects url to /urls
 });
 
 
