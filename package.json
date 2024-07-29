@@ -19,6 +19,8 @@
   },
   "homepage": "https://github.com/xtremeyou/tinyapp#readme",
   "dependencies": {
+    "cookie-parser": "^1.4.6",
+    "cookieparser": "^0.1.0",
     "ejs": "^3.1.10",
     "express": "^4.19.2"
   },

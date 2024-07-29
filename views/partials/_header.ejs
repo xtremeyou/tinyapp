@@ -18,6 +18,17 @@
         <a class="nav-item nav-link" href="/urls/new">Create New URL</a>
       </div>
     </div>
+    
+    <%if (username) { %>
+    <div style="padding: 5px;">
+      <form action="/logout" method="POST" input="text">
+        <div class="form-group mb-2">
+          <label for="username" style="padding: 3px;"><strong>Logged in as: <%= username %>!</strong></label>
+          <button type="submit" class="btn btn-primary">Logout</button>
+        </div>
+      </form>
+    </div>
+    <%} else { %>
     <div>
       <form action="/login" method="POST" input="text">
         <div></div>
@@ -30,6 +41,7 @@
         </div>
         <button type="submit" class="btn btn-primary">Login</button>
       </form> 
+      <%} %>
     </nav>  
   </nav>
 </header>
