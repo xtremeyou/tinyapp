@@ -52,7 +52,8 @@ app.get('/urls.json', (req, res) => {
 app.get('/urls', (req, res) => {
   const templateVars = {
     urls: urlDatabase,//allows us to use URLdatabase key/value pairs inside our urls_index view file
-    username: req.cookies['username'] //allows us to use this key/value pair in our views
+    user: users[req.cookies['user_id']]
+    //username: req.cookies['username'] //allows us to use this key/value pair in our views
   };
   res.render('urls_index', templateVars); //renders the page, and allows use of templateVars
 });
@@ -60,30 +61,43 @@ app.get('/urls', (req, res) => {
 app.post('/register', (req, res) => {
   const templateVars = {
     urls: urlDatabase,//allows us to use URLdatabase key/value pairs inside our urls_index view file
-    users: users,
-    username: req.cookies['username'], //allows us to use this key/value pair in our views
+    user: users[req.cookies['user_id']]
+    //username: req.cookies['username'], //allows us to use this key/value pair in our views
     
   };
   
-  const userRandomID = generateRandomString();
+  const RandomUserID = generateRandomString();
   const userEmail = req.body.email;
   const userPassword = req.body.password;
-  const userID = userRandomID;
-  users[userRandomID] = { id: userID, email: userEmail, password:userPassword };
-  res.cookie('user_id', users[userRandomID]);
+  const userID = RandomUserID;
+  users[RandomUserID] = { id: userID, email: userEmail, password:userPassword };
+  res.cookie('user_id', RandomUserID);
   res.redirect('/urls');
 });
 
+//do this for every rende, but with user_id cookie and include it inside the template like username
+// app.get('/register', (req, res) => {
+//   const templateVars = {
+//     urls: urlDatabase,//allows us to use URLdatabase key/value pairs inside our urls_index view file
+//     users: users,
+//     username: req.cookies['username'] //allows us to use this key/value pair in our views
+//   };
+//   const userName = req.body.username; //assigns req.body.username's data from input form to userName
+//   res.cookie('username',userName); //updates the cookies username data
+//   res.render('register', templateVars); //renders register and allows use of templateVar inside /register
+// });
 
 
 app.get('/register', (req, res) => {
   const templateVars = {
-    urls: urlDatabase,//allows us to use URLdatabase key/value pairs inside our urls_index view file
-    users: users,
-    username: req.cookies['username'] //allows us to use this key/value pair in our views
+    urls: urlDatabase,//allows us to use URLdatabase key/value pairs inside our view files
+    user: users[req.cookies['user_id']]
+    //username: req.cookies['username'] //allows us to use this key/value pair in our views
   };
-  const userName = req.body.username; //assigns req.body.username's data from input form to userName
-  res.cookie('username',userName); //updates the cookies username data
+  const user = req.body.user_id;
+  res.cookie('user_id', user);
+  // const userName = req.body.username; //assigns req.body.username's data from input form to userName
+  // res.cookie('username',userName); //updates the cookies username data
   res.render('register', templateVars); //renders register and allows use of templateVar inside /register
 });
 
@@ -116,21 +130,26 @@ app.post('/urls/:id', (req, res) => {
 app.get('/urls/new', (req, res) => {
   const templateVars = {
     urls: urlDatabase,//allows us to use URLdatabase key/value pairs inside our urls_index view file
-    username: req.cookies['username'] //allows us to use this key/value pair in our views
+    user: users[req.cookies['user_id']]
+    //username: req.cookies['username'] //allows us to keep our username across pages
   };
   res.render('urls_new', templateVars); //renders a new view "urls_new"
 });
 
 
 app.post('/login', (req, res) => {
-  const userName = req.body.username; //gets body data from username form in _header.js
-  res.cookie('username',userName); //adds name for cookies, then a value of username
+  const user = req.body.user_id;
+  res.cookie('user_id', user);
+  //const userName = req.body.username; //gets body data from username form in _header.js
+  //res.cookie('username',userName); //adds name for cookies, then a value of username
   res.redirect('/urls'); //redirects url to /urls
 });
 
 app.post('/logout', (req, res) => {
-  const userName = req.body.username; //gets body data from username form in _header.js
-  res.clearCookie('username', userName);//clears cookie username when logout button is clicked
+  const user = req.body.user_id;
+  res.clearCookie('user_id', user);
+  //const userName = req.body.username; //gets body data from username form in _header.js
+  //res.clearCookie('username', userName);//clears cookie username when logout button is clicked
   res.redirect('/urls'); //redirects url to /urls
 });
 
@@ -145,9 +164,11 @@ app.get('/u/:id', (req, res) => {
 app.get("/urls/:id", (req, res) => {
   const id = req.params.id; //assigns id to webites path /urls/:id
   const longURL = urlDatabase[id]; //assigns longURl to urlDatabases key, it'll now hold the long version of an url
-  const templateVars = { id: req.params.id,
+  const templateVars = {
+    id: req.params.id,
     longURL: longURL,
-    username: req.cookies['username']
+    user: users[req.cookies['user_id']]
+    //username: req.cookies['username']
   }; //allows us to use the id and longURL variables inside our views using js
   res.render('urls_show', templateVars); //it'll now render the views template, allowing us to access it, as well as given us access to the objects key/value pairs data
 });

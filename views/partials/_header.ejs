@@ -19,11 +19,11 @@
       </div>
     </div>
     
-    <%if (username) { %>
+    <%if (user) { %>
     <div style="padding: 5px;">
       <form action="/logout" method="POST" input="text">
         <div class="form-group mb-2">
-          <label for="username" style="padding: 3px;"><strong>Logged in as: <%= username %>!</strong></label>
+          <label for="user" style="padding: 3px;"><strong>Logged in as: <%= user.id %>!</strong></label>
           <button type="submit" class="btn btn-primary">Logout</button>
         </div>
       </form>
@@ -31,17 +31,17 @@
     <%} else { %>
     <div>
       <form action="/login" method="POST" input="text">
-        <div></div>
+        <div class="form-group">
           <input class="form-control"
             type="text"
-            name="username"
+            name="user"
             placeholder="Username"
             style="width: 300px; margin: 1em"
           />
         </div>
         <button type="submit" class="btn btn-primary">Login</button>
       </form> 
-      <%} %>
-    </nav>  
+    </div>
+    <%} %>
   </nav>
 </header>
