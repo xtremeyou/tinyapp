@@ -21,6 +21,20 @@ const generateRandomString = () => {
   return randomString;
 };
 
+const users = {
+  userRandomID: {
+    id: "userRandomID",
+    email: "user@example.com",
+    password: "purple-monkey-dinosaur",
+  },
+  user2RandomID: {
+    id: "user2RandomID",
+    email: "user2@example.com",
+    password: "dishwasher-funk",
+  },
+};
+
+
 //creates a database to use our templates
 const urlDatabase = {
   b2xVn2: 'http://www.lighthouselabs.ca',
@@ -45,9 +59,9 @@ app.get('/register', (req, res) => {
     urls: urlDatabase,//allows us to use URLdatabase key/value pairs inside our urls_index view file
     username: req.cookies['username'] //allows us to use this key/value pair in our views
   };
-  const userName = req.body.username;
-  res.cookie('username',userName);
-  res.render('register', templateVars);
+  const userName = req.body.username; //assigns req.body.username's data from input form to userName
+  res.cookie('username',userName); //updates the cookies username data
+  res.render('register', templateVars); //renders register and allows use of templateVar inside /register
 });
 
 //posts data from longURl to the database with a generated shortURl
