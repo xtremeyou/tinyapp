@@ -40,6 +40,16 @@ app.get('/urls', (req, res) => {
   res.render('urls_index', templateVars); //renders the page, and allows use of templateVars
 });
 
+app.get('/register', (req, res) => {
+  const templateVars = {
+    urls: urlDatabase,//allows us to use URLdatabase key/value pairs inside our urls_index view file
+    username: req.cookies['username'] //allows us to use this key/value pair in our views
+  };
+  const userName = req.body.username;
+  res.cookie('username',userName);
+  res.render('register', templateVars);
+});
+
 //posts data from longURl to the database with a generated shortURl
 //console.logs both longURl and shortURl
 //redirects shortURl to urls_show view
@@ -85,6 +95,10 @@ app.post('/logout', (req, res) => {
   const userName = req.body.username; //gets body data from username form in _header.js
   res.clearCookie('username', userName);//clears cookie username when logout button is clicked
   res.redirect('/urls'); //redirects url to /urls
+});
+
+app.get('/register', (req, res) => {
+  res.render('register');
 });
 
 
