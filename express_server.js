@@ -63,14 +63,13 @@ app.post('/register', (req, res) => {
     urls: urlDatabase,//allows us to use URLdatabase key/value pairs inside our urls_index view file
     user: users[req.cookies['user_id']]
     //username: req.cookies['username'], //allows us to use this key/value pair in our views
-    
   };
-  
+
   const RandomUserID = generateRandomString();
   const userEmail = req.body.email;
   const userPassword = req.body.password;
   const userID = RandomUserID;
-  users[RandomUserID] = { id: userID, email: userEmail, password:userPassword };
+  users[RandomUserID] = { id: userID, email: userEmail, password: userPassword };
   res.cookie('user_id', RandomUserID);
   res.redirect('/urls');
 });
@@ -122,7 +121,7 @@ app.post('/urls/:id', (req, res) => {
     res.redirect('/urls'); //redirects to path /urls which is the page that lists our created urls
   } catch (error) {
     console.log(error);//will catch error if error happens, display an error output to console
-    res.status(404).render('error', {message: error.message}); //will render error page if error
+    res.status(404).render('error', { message: error.message }); //will render error page if error
   }
 });
 
