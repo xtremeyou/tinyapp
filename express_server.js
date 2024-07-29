@@ -33,7 +33,10 @@ app.get('/urls.json', (req, res) => {
 
 //lets us use our template vars in our views
 app.get('/urls', (req, res) => {
-  const templateVars = { urls: urlDatabase }; //allows us to use URLdatabase key/value pairs inside our urls_index view file
+  const templateVars = {
+    urls: urlDatabase,//allows us to use URLdatabase key/value pairs inside our urls_index view file
+    username: req.cookies['username'] //allows us to use this key/value pair in our views
+  };
   res.render('urls_index', templateVars); //renders the page, and allows use of templateVars
 });
 
@@ -64,7 +67,11 @@ app.post('/urls/:id', (req, res) => {
 
 //connects the view file to our server as well as adding a path to it
 app.get('/urls/new', (req, res) => {
-  res.render('urls_new'); //renders a new view "urls_new"
+  const templateVars = {
+    urls: urlDatabase,//allows us to use URLdatabase key/value pairs inside our urls_index view file
+    username: req.cookies['username'] //allows us to use this key/value pair in our views
+  };
+  res.render('urls_new', templateVars); //renders a new view "urls_new"
 });
 
 app.post('/login', (req, res) => {
@@ -84,7 +91,10 @@ app.get('/u/:id', (req, res) => {
 app.get("/urls/:id", (req, res) => {
   const id = req.params.id; //assigns id to webites path /urls/:id
   const longURL = urlDatabase[id]; //assigns longURl to urlDatabases key, it'll now hold the long version of an url
-  const templateVars = { id: req.params.id, longURL: longURL }; //allows us to use the id and longURL variables inside our views using js
+  const templateVars = { id: req.params.id,
+    longURL: longURL,
+    username: req.cookies['username']
+  }; //allows us to use the id and longURL variables inside our views using js
   res.render('urls_show', templateVars); //it'll now render the views template, allowing us to access it, as well as given us access to the objects key/value pairs data
 });
 
