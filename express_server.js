@@ -97,10 +97,6 @@ app.post('/logout', (req, res) => {
   res.redirect('/urls'); //redirects url to /urls
 });
 
-app.get('/register', (req, res) => {
-  res.render('register');
-});
-
 
 app.get('/u/:id', (req, res) => {
   const id = req.params.id; //assigns id to websites path /urls/id
