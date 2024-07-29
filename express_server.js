@@ -21,6 +21,7 @@ const generateRandomString = () => {
   return randomString;
 };
 
+//database for users
 const users = {
   userRandomID: {
     id: "userRandomID",
@@ -34,12 +35,13 @@ const users = {
   },
 };
 
-
-//creates a database to use our templates
+//database for urls
 const urlDatabase = {
   b2xVn2: 'http://www.lighthouselabs.ca',
   '9sm5xK': 'http://www.google.com'
 };
+
+
 
 app.get('/urls.json', (req, res) => {
   res.json(urlDatabase); //sends urlDatabase to path /urls.json in json form
@@ -54,10 +56,22 @@ app.get('/urls', (req, res) => {
   res.render('urls_index', templateVars); //renders the page, and allows use of templateVars
 });
 
+app.post('/register', (req, res) => {
+  const randomUserID = generateRandomString(); //generates randomUserID
+  const userEmail = req.body.email; //assigned email form data to userEmail variable
+  const userPassword = req.body.password; //assigned password form data to userPassword
+  const userID = randomUserID; //creates useID using randomUserID
+  users[randomUserID] = { userID, userEmail, userPassword }; //assigned users[randomUserID] to generate a new randomUserID key and add the values userEmail and userPassword everytime a new one is created
+  res.cookie('user_id', randomUserID);
+  res.redirect('/urls');
+});
+
 app.get('/register', (req, res) => {
   const templateVars = {
     urls: urlDatabase,//allows us to use URLdatabase key/value pairs inside our urls_index view file
-    username: req.cookies['username'] //allows us to use this key/value pair in our views
+    users: users, //allows us to use this key/value pair in our views
+
+    
   };
   const userName = req.body.username; //assigns req.body.username's data from input form to userName
   res.cookie('username',userName); //updates the cookies username data
@@ -124,7 +138,10 @@ app.get("/urls/:id", (req, res) => {
   const longURL = urlDatabase[id]; //assigns longURl to urlDatabases key, it'll now hold the long version of an url
   const templateVars = { id: req.params.id,
     longURL: longURL,
-    username: req.cookies['username']
+    username: req.cookies['username'],
+    userEmail: req.cookies['email'],
+    userPassword: req.cookies['password'],
+    userAcc: users
   }; //allows us to use the id and longURL variables inside our views using js
   res.render('urls_show', templateVars); //it'll now render the views template, allowing us to access it, as well as given us access to the objects key/value pairs data
 });
