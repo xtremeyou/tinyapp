@@ -74,9 +74,16 @@ app.get('/urls/new', (req, res) => {
   res.render('urls_new', templateVars); //renders a new view "urls_new"
 });
 
+
 app.post('/login', (req, res) => {
   const userName = req.body.username; //gets body data from username form in _header.js
   res.cookie('username',userName); //adds name for cookies, then a value of username
+  res.redirect('/urls'); //redirects url to /urls
+});
+
+app.post('/logout', (req, res) => {
+  const userName = req.body.username; //gets body data from username form in _header.js
+  res.clearCookie('username', userName);//clears cookie username when logout button is clicked
   res.redirect('/urls'); //redirects url to /urls
 });
 
