@@ -74,27 +74,16 @@ app.post('/register', (req, res) => {
   const RandomUserID = generateRandomString();
   const userEmail = req.body.email;
   const userPassword = req.body.password;
-
-  try {
-    // Validate input fields
-    if (!userEmail || !userPassword) {
-      throw new Error("Please enter both email and password");
-    }
-
-    // Check if email is already registered
-    const result = getUserByEmail(userEmail);
-    if (result) {
-      throw new Error("Email already registered, please try another email");
-    }
-
-    // If we get here, we can proceed with registration
-    users[RandomUserID] = { id: RandomUserID, email: userEmail, password: userPassword };
-    res.cookie('user_id', RandomUserID);
-    res.redirect('/urls');
-  } catch (error) {
-    console.log(error); // Log the error for debugging
-    res.status(400).render('error', { message: error.message }); // Use 400 for validation errors
+  if (!userEmail || !userPassword) {
+    res.status(400).render('err', 'Please enter both email and password!');
   }
+  const result = getUserByEmail(userEmail);
+  if (result) {
+    res.status(400).render('err', "Email already registered, please use another email.");
+  }
+  users[RandomUserID] = { id: RandomUserID, email: userEmail, password: userPassword };
+  res.cookie('user_id', RandomUserID);
+  res.redirect('/urls');
 });
  
 
@@ -104,7 +93,6 @@ app.get('/register', (req, res) => {
   const templateVars = {
     urls: urlDatabase,//allows us to use URLdatabase key/value pairs inside our view files
     user: users[req.cookies['user_id']]
-    
   };
   const userID = req.body.user_id;
   res.cookie('user_id', userID);
@@ -145,6 +133,13 @@ app.get('/urls/new', (req, res) => {
   res.render('urls_new', templateVars); //renders a new view "urls_new"
 });
 
+app.get('/login', (req, res) => {
+  const templateVars = {
+    urls: urlDatabase, //allows us to use URLdatabase key/value pairs inside our view files
+    user: users[req.cookies['user_id']]
+  };
+  res.render('login', templateVars);
+});
 
 app.post('/login', (req, res) => {
   const RandomUserID = req.body.user_id;
@@ -181,11 +176,6 @@ app.post('/urls/:id/delete', (req, res) => {
   const id = req.params.id; //assigns id to website path /urls/:id/delete
   delete urlDatabase[id]; //using the delete method, it'll delete the key/value pairs inside urlDatabase
   res.redirect('/urls'); //it'll redirect us to path /urls after we delete everything
-});
-
-app.use((err, req, res,) => {
-  console.error(err.stack);
-  res.status(500).render('error', { message: "Something went wrong!" });
 });
 
 //says hello when at endpoint
