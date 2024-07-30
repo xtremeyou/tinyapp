@@ -142,7 +142,9 @@ app.get('/login', (req, res) => {
 });
 
 app.post('/login', (req, res) => {
-  const RandomUserID = req.body.user_id;
+  const userEmail = req.body.email;
+  const userPassword = req.body.password;
+  const RandomUserID = { userEmail, userPassword };
   res.cookie('user_id', RandomUserID);
   res.redirect('/urls'); //redirects url to /urls
 });
