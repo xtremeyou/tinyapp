@@ -32,8 +32,6 @@ const getUserInfo = function(email) {
   return null;
 };
 
-
-
 const users = {
   userRandomID: {
     id: "userRandomID",
@@ -55,7 +53,6 @@ const urlDatabase = {
 };
 
 
-
 app.get('/urls.json', (req, res) => {
   res.json(urlDatabase); //sends urlDatabase to path /urls.json in json form
 });
@@ -64,24 +61,26 @@ app.get('/urls.json', (req, res) => {
 app.get('/urls', (req, res) => {
   const templateVars = {
     urls: urlDatabase,//allows us to use URLdatabase key/value pairs inside our urls_index view file
-    user: users[req.cookies['user_id']]
+    user: users[req.cookies['user_id']] || null
   };
   res.render('urls_index', templateVars); //renders the page, and allows use of templateVars
 });
 
 
 
-app.post('/register', (req, res) => {
-  const RandomUserID = generateRandomString();
-  const userEmail = req.body.email;
-  const userPassword = req.body.password;
-  if (!userEmail || !userPassword) {
+app.post('/register', (req, res) => { //posts form info to this method
+  const RandomUserID = generateRandomString(); //generates random user id
+  const userEmail = req.body.email; //gets body info from form inside register view
+  const userPassword = req.body.password; //same as above, but for password
+  if (!userEmail || !userPassword) {  //if no email/password is entered, error!
     res.status(400).send('Please enter both email and password!');
   }
-  const result = getUserInfo(userEmail);
-  if (result) {
+  const result = getUserInfo(userEmail); // asssigns users object userid key to result
+  //also callsback to funciton using userEmail as a parameter
+  if (result) { //if there is duplciate emails, error
     res.status(400).send("Email already registered, please use another email.");
   }
+  //creates new userid, then assigsn it to cookies value, to be used across website
   users[RandomUserID] = { id: RandomUserID, email: userEmail, password: userPassword };
   res.cookie('user_id', RandomUserID);
   res.redirect('/urls');
@@ -93,8 +92,11 @@ app.post('/register', (req, res) => {
 app.get('/register', (req, res) => {
   const templateVars = {
     urls: urlDatabase,//allows us to use URLdatabase key/value pairs inside our view files
-    user: users[req.cookies['user_id']]
+    user: users[req.cookies['user_id']] //has users current login info stored here, to be used across website
   };
+  if (templateVars.user) {
+    return res.redirect('/urls');
+  }
   res.render('register', templateVars); //renders register and allows use of templateVar inside /register
 });
 
@@ -111,16 +113,11 @@ app.post('/urls', (req, res) => {
 app.post('/urls/:id', (req, res) => {
   const id = req.params.id; //assigns id to id of the route path
   const newLongURL = req.body.longURL; //assign newLongURL the data of the longURL data from the form submitted
-  try {
-    if (!urlDatabase[id]) { //checks if urlDatabase has no keys, if so it will throw error
-      throw new Error("You need to update an already exisiting url");
-    }
-    urlDatabase[id] = newLongURL;//assigns key of urlDatabase a newlongURL value
-    res.redirect('/urls'); //redirects to path /urls which is the page that lists our created urls
-  } catch (error) {
-    console.log(error);//will catch error if error happens, display an error output to console
-    return res.status(404).send('error', { message: error.message }); //will render error page if error
+  if (!urlDatabase[id]) { //checks if urlDatabase has no keys, if so it will throw error
+    return res.status(404).render('urls_show', { message: 'You need to update an existing URL' });
   }
+  urlDatabase[id] = newLongURL;//assigns key of urlDatabase a newlongURL value
+  res.redirect('/urls'); //redirects to path /urls which is the page that lists our created urls
 });
 
 //connects the view file to our server as well as adding a path to it
@@ -129,6 +126,9 @@ app.get('/urls/new', (req, res) => {
     urls: urlDatabase,//allows us to use URLdatabase key/value pairs inside our urls_index view file
     user: users[req.cookies['user_id']] //lets user_id switch between pages and keep cookies
   };
+  if (!templateVars.user) {
+    res.redirect('/login');
+  }
   res.render('urls_new', templateVars); //renders a new view "urls_new"
 });
 
@@ -137,8 +137,12 @@ app.get('/login', (req, res) => {
     urls: urlDatabase, //allows us to use URLdatabase key/value pairs inside our view files
     user: users[req.cookies['user_id']]
   };
+  if (templateVars.user) {
+    res.redirect('/urls');
+  }
   res.render('login', templateVars);
 });
+
 
 app.post('/login', (req, res) => {
   const userEmail = req.body.email;
@@ -153,7 +157,7 @@ app.post('/login', (req, res) => {
   if (user.password !== userPassword) {
     return res.status(403).send('No user found associated with that password');
   }
-  res.cookie('user_id', user.id);
+  res.cookie('user_id', user.id); //sets cookies value using current users value id which is used as the username to be displayed top right off web pages when logged in
   res.redirect('/urls');
 });
 
@@ -166,20 +170,32 @@ app.post('/logout', (req, res) => {
 app.get('/u/:id', (req, res) => {
   const id = req.params.id; //assigns id to websites path /urls/id
   const longURL = urlDatabase[id]; //assigns longurl variable to urlDatabases id, which is the value of URLDatabases key/value pairs
+  if (!longURL) {
+    // Render the `urls_show` view with an error message if the URL is not found
+    return res.status(404).render('urls_show', { message: 'Short URL not found in the database' });
+  }
+
   res.redirect(longURL); //if urlDatabase has a longURL value attached to the key which is id, it'll redirect webpage to a new site
 });
 
 //outputs long url id, and shortURl id on path /urls/:id
-app.get("/urls/:id", (req, res) => {
-  const id = req.params.id; //assigns id to webites path /urls/:id
-  const longURL = urlDatabase[id]; //assigns longURl to urlDatabases key, it'll now hold the long version of an url
+app.get('/urls/:id', (req, res) => {
+  const id = req.params.id;
+  const longURL = urlDatabase[id];
   const templateVars = {
-    id: req.params.id,
+    id: id,
     longURL: longURL,
-    user: users[req.cookies['user_id']]
-    //username: req.cookies['username']
-  }; //allows us to use the id and longURL variables inside our views using js
-  res.render('urls_show', templateVars); //it'll now render the views template, allowing us to access it, as well as given us access to the objects key/value pairs data
+    urls: urlDatabase,
+    user: users[req.cookies['user_id']],
+    message: null
+  };
+  
+  if (!longURL) {
+    // Pass an error message to the view
+    return res.status(404).render('urls_show', { message: 'Short URL not found in the database' });
+  }
+  
+  res.render('urls_show', templateVars); // Pass URL details if URL exists
 });
 
 app.post('/urls/:id/delete', (req, res) => {
@@ -188,7 +204,7 @@ app.post('/urls/:id/delete', (req, res) => {
   res.redirect('/urls'); //it'll redirect us to path /urls after we delete everything
 });
 
-//says hello when at endpoint
+//says hello when at endpointa
 app.get('/', (req, res) => {
   res.send('Hello'); //sends "Hello" to / endpoint path
 });
