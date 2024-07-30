@@ -22,6 +22,17 @@ const generateRandomString = () => {
   return randomString;
 };
 
+const getUserByEmail = function(email) {
+  for (const userId in users) {
+    if (users[userId].email === email) {
+      return users[userId]; // Return the user object if email matches
+    }
+  }
+  return null;
+};
+
+
+
 const users = {
   userRandomID: {
     id: "userRandomID",
@@ -53,50 +64,50 @@ app.get('/urls', (req, res) => {
   const templateVars = {
     urls: urlDatabase,//allows us to use URLdatabase key/value pairs inside our urls_index view file
     user: users[req.cookies['user_id']]
-    //username: req.cookies['username'] //allows us to use this key/value pair in our views
   };
   res.render('urls_index', templateVars); //renders the page, and allows use of templateVars
 });
 
-app.post('/register', (req, res) => {
-  const templateVars = {
-    urls: urlDatabase,//allows us to use URLdatabase key/value pairs inside our urls_index view file
-    user: users[req.cookies['user_id']]
-    //username: req.cookies['username'], //allows us to use this key/value pair in our views
-  };
 
+
+app.post('/register', (req, res) => {
   const RandomUserID = generateRandomString();
   const userEmail = req.body.email;
   const userPassword = req.body.password;
-  const userID = RandomUserID;
-  users[RandomUserID] = { id: userID, email: userEmail, password: userPassword };
-  res.cookie('user_id', RandomUserID);
-  res.redirect('/urls');
-});
 
-//do this for every rende, but with user_id cookie and include it inside the template like username
-// app.get('/register', (req, res) => {
-//   const templateVars = {
-//     urls: urlDatabase,//allows us to use URLdatabase key/value pairs inside our urls_index view file
-//     users: users,
-//     username: req.cookies['username'] //allows us to use this key/value pair in our views
-//   };
-//   const userName = req.body.username; //assigns req.body.username's data from input form to userName
-//   res.cookie('username',userName); //updates the cookies username data
-//   res.render('register', templateVars); //renders register and allows use of templateVar inside /register
-// });
+  try {
+    // Validate input fields
+    if (!userEmail || !userPassword) {
+      throw new Error("Please enter both email and password");
+    }
+
+    // Check if email is already registered
+    const result = getUserByEmail(userEmail);
+    if (result) {
+      throw new Error("Email already registered, please try another email");
+    }
+
+    // If we get here, we can proceed with registration
+    users[RandomUserID] = { id: RandomUserID, email: userEmail, password: userPassword };
+    res.cookie('user_id', RandomUserID);
+    res.redirect('/urls');
+  } catch (error) {
+    console.log(error); // Log the error for debugging
+    res.status(400).render('error', { message: error.message }); // Use 400 for validation errors
+  }
+});
+ 
+
 
 
 app.get('/register', (req, res) => {
   const templateVars = {
     urls: urlDatabase,//allows us to use URLdatabase key/value pairs inside our view files
     user: users[req.cookies['user_id']]
-    //username: req.cookies['username'] //allows us to use this key/value pair in our views
+    
   };
-  const user = req.body.user_id;
-  res.cookie('user_id', user);
-  // const userName = req.body.username; //assigns req.body.username's data from input form to userName
-  // res.cookie('username',userName); //updates the cookies username data
+  const userID = req.body.user_id;
+  res.cookie('user_id', userID);
   res.render('register', templateVars); //renders register and allows use of templateVar inside /register
 });
 
@@ -129,26 +140,20 @@ app.post('/urls/:id', (req, res) => {
 app.get('/urls/new', (req, res) => {
   const templateVars = {
     urls: urlDatabase,//allows us to use URLdatabase key/value pairs inside our urls_index view file
-    user: users[req.cookies['user_id']]
-    //username: req.cookies['username'] //allows us to keep our username across pages
+    user: users[req.cookies['user_id']] //lets user_id switch between pages and keep cookies
   };
   res.render('urls_new', templateVars); //renders a new view "urls_new"
 });
 
 
 app.post('/login', (req, res) => {
-  const user = req.body.user_id;
-  res.cookie('user_id', user);
-  //const userName = req.body.username; //gets body data from username form in _header.js
-  //res.cookie('username',userName); //adds name for cookies, then a value of username
+  const RandomUserID = req.body.user_id;
+  res.cookie('user_id', RandomUserID);
   res.redirect('/urls'); //redirects url to /urls
 });
 
 app.post('/logout', (req, res) => {
-  const user = req.body.user_id;
-  res.clearCookie('user_id', user);
-  //const userName = req.body.username; //gets body data from username form in _header.js
-  //res.clearCookie('username', userName);//clears cookie username when logout button is clicked
+  res.clearCookie('user_id');
   res.redirect('/urls'); //redirects url to /urls
 });
 
@@ -178,6 +183,10 @@ app.post('/urls/:id/delete', (req, res) => {
   res.redirect('/urls'); //it'll redirect us to path /urls after we delete everything
 });
 
+app.use((err, req, res,) => {
+  console.error(err.stack);
+  res.status(500).render('error', { message: "Something went wrong!" });
+});
 
 //says hello when at endpoint
 app.get('/', (req, res) => {

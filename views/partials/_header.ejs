@@ -23,22 +23,20 @@
     <div style="padding: 5px;">
       <form action="/logout" method="POST" input="text">
         <div class="form-group mb-2">
-          <label for="user" style="padding: 3px;"><strong>Logged in as: <%= user.id %>!</strong></label>
+          <label for="user_id" style="padding: 3px;"><strong>Logged in as: <%= user.id %>!</strong></label>
           <button type="submit" class="btn btn-primary">Logout</button>
         </div>
       </form>
     </div>
     <%} else { %>
     <div>
-      <form action="/login" method="POST" input="text">
-        <div class="form-group">
+      <form class="form-inline" action="/login" method="POST" input="text">
           <input class="form-control"
             type="text"
-            name="user"
+            name="user_id"
             placeholder="Username"
-            style="width: 300px; margin: 1em"
+            style="width: 200px; margin: 1em"
           />
-        </div>
         <button type="submit" class="btn btn-primary">Login</button>
       </form> 
     </div>
