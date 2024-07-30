@@ -22,7 +22,8 @@ const generateRandomString = () => {
   return randomString;
 };
 
-const getUserByEmail = function(email) {
+//checks if existing emails, or other data exist inside user database
+const getUserInfo = function(email) {
   for (const userId in users) {
     if (users[userId].email === email) {
       return users[userId]; // Return the user object if email matches
@@ -75,11 +76,11 @@ app.post('/register', (req, res) => {
   const userEmail = req.body.email;
   const userPassword = req.body.password;
   if (!userEmail || !userPassword) {
-    res.status(400).render('err', 'Please enter both email and password!');
+    res.status(400).send('Please enter both email and password!');
   }
-  const result = getUserByEmail(userEmail);
+  const result = getUserInfo(userEmail);
   if (result) {
-    res.status(400).render('err', "Email already registered, please use another email.");
+    res.status(400).send("Email already registered, please use another email.");
   }
   users[RandomUserID] = { id: RandomUserID, email: userEmail, password: userPassword };
   res.cookie('user_id', RandomUserID);
@@ -94,8 +95,6 @@ app.get('/register', (req, res) => {
     urls: urlDatabase,//allows us to use URLdatabase key/value pairs inside our view files
     user: users[req.cookies['user_id']]
   };
-  const userID = req.body.user_id;
-  res.cookie('user_id', userID);
   res.render('register', templateVars); //renders register and allows use of templateVar inside /register
 });
 
@@ -120,7 +119,7 @@ app.post('/urls/:id', (req, res) => {
     res.redirect('/urls'); //redirects to path /urls which is the page that lists our created urls
   } catch (error) {
     console.log(error);//will catch error if error happens, display an error output to console
-    res.status(404).render('error', { message: error.message }); //will render error page if error
+    return res.status(404).send('error', { message: error.message }); //will render error page if error
   }
 });
 
@@ -144,14 +143,23 @@ app.get('/login', (req, res) => {
 app.post('/login', (req, res) => {
   const userEmail = req.body.email;
   const userPassword = req.body.password;
-  const RandomUserID = { userEmail, userPassword };
-  res.cookie('user_id', RandomUserID);
-  res.redirect('/urls'); //redirects url to /urls
+  if (!userEmail || !userPassword) {
+    return res.status(403).send('Please enter both an email and password');
+  }
+  const user = getUserInfo(userEmail);//assign the user object to user variable with param userEmail
+  if (!user) {
+    return res.status(403).send('No user found associated with that email');
+  }
+  if (user.password !== userPassword) {
+    return res.status(403).send('No user found associated with that password');
+  }
+  res.cookie('user_id', user.id);
+  res.redirect('/urls');
 });
 
 app.post('/logout', (req, res) => {
   res.clearCookie('user_id');
-  res.redirect('/urls'); //redirects url to /urls
+  res.redirect('/login'); //redirects url to /urls
 });
 
 
@@ -184,7 +192,7 @@ app.post('/urls/:id/delete', (req, res) => {
 app.get('/', (req, res) => {
   res.send('Hello'); //sends "Hello" to / endpoint path
 });
-
+console.log(users);
 //allows server to listen for events
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}`);
