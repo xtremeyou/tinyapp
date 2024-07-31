@@ -32,6 +32,16 @@ const getUserInfo = function(email) {
   return null;
 };
 
+const urlsForUser = (id) => {
+  const userUrls = {};
+  for (const urlId in urlDatabase) {
+    if (urlDatabase[urlId].userID === id) {
+      userUrls[urlId] = urlDatabase[urlId];
+    }
+  }
+  return userUrls;
+};
+
 const users = {
   userRandomID: {
     id: "userRandomID",
@@ -48,8 +58,14 @@ const users = {
 
 //creates a database to use our templates
 const urlDatabase = {
-  b2xVn2: 'http://www.lighthouselabs.ca',
-  '9sm5xK': 'http://www.google.com'
+  b6UTxQ: {
+    longURL: "https://www.tsn.ca",
+    userID: "userRandomID",
+  },
+  i3BoGr: {
+    longURL: "https://www.google.ca",
+    userID: "user2RandomID",
+  },
 };
 
 
@@ -59,11 +75,17 @@ app.get('/urls.json', (req, res) => {
 
 //lets us use our template vars in our views
 app.get('/urls', (req, res) => {
+  const userId = req.cookies['user_id'];
+  if (!userId) {
+    return res.status(403).send('You need to log in to view your URLs.');
+  }
+  
+  const userUrls = urlsForUser(userId);
   const templateVars = {
-    urls: urlDatabase,//allows us to use URLdatabase key/value pairs inside our urls_index view file
-    user: users[req.cookies['user_id']]
+    urls: userUrls,
+    user: users[userId]
   };
-  res.render('urls_index', templateVars); //renders the page, and allows use of templateVars
+  res.render('urls_index', templateVars);
 });
 
 
@@ -104,24 +126,39 @@ app.get('/register', (req, res) => {
 //console.logs both longURl and shortURl
 //redirects shortURl to urls_show view
 app.post('/urls', (req, res) => {
-  const user = users[req.cookies['user_id']];
-  if (!user) {
+  const userId = req.cookies['user_id'];
+  if (!userId) {
     return res.status(403).send('<h1>You need to login first to shorten URLs</h1>');
   }
-  const longURL = req.body.longURL; //assigns variable longURl to req.body.longURl, which allows variable longURl to have longURl's body data
-  const shortURLID = generateRandomString(); //assigns variable shortURLID a random string of 6 characters
-  urlDatabase[shortURLID] = longURL; // shortURlID now replaces urlDatabases key, and a longURl to it as a value?
-  res.redirect('/urls'); //redirects to the urls list page, where it contains a list of all urls in the database
+  
+  const longURL = req.body.longURL;
+  const shortURLID = generateRandomString();
+  urlDatabase[shortURLID] = {
+    longURL,
+    userID: userId
+  };
+  res.redirect('/urls');
 });
 
 app.post('/urls/:id', (req, res) => {
-  const id = req.params.id; //assigns id to id of the route path
-  const newLongURL = req.body.longURL; //assign newLongURL the data of the longURL data from the form submitted
-  if (!urlDatabase[id]) { //checks if urlDatabase has no keys, if so it will throw error
-    return res.status(404).render('urls_show', { message: 'You need to update an existing URL' });
+  const id = req.params.id;
+  const newLongURL = req.body.longURL;
+  const userId = req.cookies['user_id'];
+
+  if (!userId) {
+    return res.status(403).send('You need to be logged in to edit this URL.');
   }
-  urlDatabase[id] = newLongURL;//assigns key of urlDatabase a newlongURL value
-  res.redirect('/urls'); //redirects to path /urls which is the page that lists our created urls
+
+  if (!urlDatabase[id]) {
+    return res.status(404).send('URL not found.');
+  }
+
+  if (urlDatabase[id].userID !== userId) {
+    return res.status(403).send('You do not have permission to edit this URL.');
+  }
+
+  urlDatabase[id].longURL = newLongURL;
+  res.redirect('/urls');
 });
 
 //connects the view file to our server as well as adding a path to it
@@ -204,9 +241,23 @@ app.get('/urls/:id', (req, res) => {
 });
 
 app.post('/urls/:id/delete', (req, res) => {
-  const id = req.params.id; //assigns id to website path /urls/:id/delete
-  delete urlDatabase[id]; //using the delete method, it'll delete the key/value pairs inside urlDatabase
-  res.redirect('/urls'); //it'll redirect us to path /urls after we delete everything
+  const id = req.params.id;
+  const userId = req.cookies['user_id'];
+
+  if (!userId) {
+    return res.status(403).send('You need to be logged in to delete URLs.');
+  }
+
+  if (!urlDatabase[id]) {
+    return res.status(404).send('URL not found.');
+  }
+
+  if (urlDatabase[id].userID !== userId) {
+    return res.status(403).send('You do not have permission to delete this URL.');
+  }
+
+  delete urlDatabase[id];
+  res.redirect('/urls');
 });
 
 //says hello when at endpointa

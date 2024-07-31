@@ -1,12 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <meta charset="utf-8" />
-    <meta
-      name="viewport"
-      content="width=device-width, initial-scale=1, shrink-to-fit=no"
-    />
-
     <!-- Bootstrap CSS -->
     <link
       rel="stylesheet"
@@ -14,44 +8,41 @@
       integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS"
       crossorigin="anonymous"
     />
-    <title>TinyApp</title>
+    <title>TinyApp - My URLs</title>
   </head>
   <body>
-
     <%- include('partials/_header'); %>
-
-    
-      <% if (user) { %>
-    <main style="margin: 1em;"></main>
-      <h3>My URLs</h3>
-      <table class="table">
-        <thead>
-          <tr>
-            <th scope="col">Short URL ID</th>
-            <th scope="col">Long URL</th>
-            <th scope="col">Edit</th>
-            <th scope="col">Delete</th>
-          </tr>
-        </thead>
-        <tbody>
-          <% for (let id in urls) { %>
+    <% if (user) { %>
+      <main style="margin: 1em;">
+        <h3>My URLs</h3>
+        <table class="table">
+          <thead>
             <tr>
-              <td><%= id %></td>
-              <td><%= urls[id] %></td> 
-              <td><a href="/urls/<%= id %>" class="btn btn-primary">Edit</a></td>
-              <td>
-                <form method="POST" action="/urls/<%= id %>/delete">
-                  <button type="submit" class="btn btn-primary">Delete</button>
-                </form>
-              </td>
+              <th scope="col">Short URL ID</th>
+              <th scope="col">Long URL</th>
+              <th scope="col">Edit</th>
+              <th scope="col">Delete</th>
             </tr>
-          <% } %>
-        </tbody>
-      </table>
-    </main>
-  <% } else { %>
-    <h3>Please login first to use this function!</h3>
-  <% } %>
+          </thead>
+          <tbody>
+            <% for (let id in urls) { %>
+              <tr>
+                <td><%= id %></td>
+                <td><%= urls[id].longURL %></td>
+                <td><a href="/urls/<%= id %>" class="btn btn-primary">Edit</a></td>
+                <td>
+                  <form method="POST" action="/urls/<%= id %>/delete">
+                    <button type="submit" class="btn btn-primary">Delete</button>
+                  </form>
+                </td>
+              </tr>
+            <% } %>
+          </tbody>
+        </table>
+      </main>
+    <% } else { %>
+      <h3>Please login first to use this function!</h3>
+    <% } %>
     <!-- Bootstrap JS -->
     <script
       src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
