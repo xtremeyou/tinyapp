@@ -1,6 +1,7 @@
 /* eslint-disable camelcase */
 const express = require('express');
 const cookieParser = require('cookie-parser');
+const cookieSession = require('cookie-session');
 const bcrypt = require("bcryptjs");
 const app = express();
 const PORT = 8080;
@@ -8,6 +9,14 @@ const PORT = 8080;
 app.use(cookieParser());
 
 app.use(express.urlencoded({ extended: true })); //allow us to read req.params.body in human readable form
+
+app.use(cookieSession({
+  name: 'session',
+  keys: ['key1', 'key2'],
+
+  // Cookie Options
+  maxAge: 24 * 60 * 60 * 1000 // 24 hours
+}));
 
 app.set('view engine', 'ejs');
 
@@ -78,14 +87,15 @@ app.get('/urls.json', (req, res) => {
 
 //lets us use our template vars in our views
 app.get('/urls', (req, res) => {
-  const userId = req.cookies['user_id'];
+  const userId = req.session.user_id;
   if (!userId) {
     return res.status(403).send('You need to log in to view your URLs.');
   }
   
   const userUrls = urlsForUser(userId);
   const templateVars = {
-    urls: userUrls,
+    urls: urlDatabase,
+    url: userUrls,
     user: users[userId]
   };
   res.render('urls_index', templateVars);
@@ -111,7 +121,7 @@ app.post('/register', (req, res) => { //posts form info to this method
   console.log(`Hashed Password: ${hashedPassword}`);
   //creates new userid, then assigsn it to cookies value, to be used across website
   users[randomUserID] = { id: randomUserID, email: userEmail, password: hashedPassword };
-  res.cookie('user_id', randomUserID);
+  req.session.user_id = randomUserID;
   res.redirect('/urls');
 });
 
@@ -122,7 +132,7 @@ app.post('/register', (req, res) => { //posts form info to this method
 app.get('/register', (req, res) => {
   const templateVars = {
     urls: urlDatabase,//allows us to use URLdatabase key/value pairs inside our view files
-    user: users[req.cookies['user_id']] //has users current login info stored here, to be used across website
+    user: users[req.session.user_id] //has users current login info stored here, to be used across website
   };
   if (templateVars.user) {
     return res.redirect('/urls');
@@ -134,7 +144,7 @@ app.get('/register', (req, res) => {
 //console.logs both longURl and shortURl
 //redirects shortURl to urls_show view
 app.post('/urls', (req, res) => {
-  const userId = req.cookies['user_id'];
+  const userId = req.session.user_id;
   if (!userId) {
     return res.status(403).send('<h1>You need to login first to shorten URLs</h1>');
   }
@@ -151,7 +161,7 @@ app.post('/urls', (req, res) => {
 app.post('/urls/:id', (req, res) => {
   const id = req.params.id;
   const newLongURL = req.body.longURL;
-  const userId = req.cookies['user_id'];
+  const userId = req.session.user_id;
 
   if (!userId) {
     return res.status(403).send('You need to be logged in to edit this URL.');
@@ -171,7 +181,7 @@ app.post('/urls/:id', (req, res) => {
 
 //connects the view file to our server as well as adding a path to it
 app.get('/urls/new', (req, res) => {
-  const user = users[req.cookies['user_id']];
+  const user = users[req.session.user_id];
   if (!user) {
     res.redirect('/login');
   }
@@ -185,7 +195,7 @@ app.get('/urls/new', (req, res) => {
 app.get('/login', (req, res) => {
   const templateVars = {
     urls: urlDatabase, //allows us to use URLdatabase key/value pairs inside our view files
-    user: users[req.cookies['user_id']]
+    user: users[req.session.user_id]
   };
   if (templateVars.user) {
     res.redirect('/urls');
@@ -208,12 +218,12 @@ app.post('/login', (req, res) => {
   if (!isPasswordCorrect) {
     return res.status(403).send('Incorrect password');
   }
-  res.cookie('user_id', user.id); //sets cookies value using current users value id which is used as the username to be displayed top right off web pages when logged in
+  req.session.user_id = user.id;
   res.redirect('/urls');
 });
 
 app.post('/logout', (req, res) => {
-  res.clearCookie('user_id');
+  req.session = null;
   res.redirect('/login'); //redirects url to /urls
 });
 
@@ -232,26 +242,30 @@ app.get('/u/:id', (req, res) => {
 //outputs long url id, and shortURl id on path /urls/:id
 app.get('/urls/:id', (req, res) => {
   const id = req.params.id;
-  const longURL = urlDatabase[id];
-  const templateVars = {
-    id: id,
-    longURL: longURL,
-    urls: urlDatabase,
-    user: users[req.cookies['user_id']],
-    message: null
-  };
-  
-  if (!longURL) {
-    // Pass an error message to the view
+  const urlData = urlDatabase[id];
+
+  if (!urlData) {
     return res.status(404).render('urls_show', { message: 'Short URL not found in the database' });
   }
+
+  console.log("URL Data:", urlData); // Debugging
+  console.log("Long URL:", urlData.longURL); // Debugging
+
+
+  const templateVars = {
+    id: id,
+    longURL: urlData.longURL,
+    urls: urlDatabase,
+    user: users[req.session.user_id],
+    message: null
+  };
   
   res.render('urls_show', templateVars); // Pass URL details if URL exists
 });
 
 app.post('/urls/:id/delete', (req, res) => {
   const id = req.params.id;
-  const userId = req.cookies['user_id'];
+  const userId = req.session.user_id;
 
   if (!userId) {
     return res.status(403).send('You need to be logged in to delete URLs.');
