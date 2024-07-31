@@ -1,6 +1,7 @@
 /* eslint-disable camelcase */
 const express = require('express');
 const cookieParser = require('cookie-parser');
+const bcrypt = require("bcryptjs");
 const app = express();
 const PORT = 8080;
 
@@ -46,14 +47,16 @@ const users = {
   userRandomID: {
     id: "userRandomID",
     email: "user@example.com",
-    password: "purple-monkey-dinosaur",
+    password: bcrypt.hashSync("purple-monkey-dinosaur", 10),
   },
   user2RandomID: {
     id: "user2RandomID",
     email: "user2@example.com",
-    password: "dishwasher-funk",
+    password: bcrypt.hashSync("dishwasher-funk", 10),
   },
 };
+
+
 
 
 //creates a database to use our templates
@@ -91,9 +94,10 @@ app.get('/urls', (req, res) => {
 
 
 app.post('/register', (req, res) => { //posts form info to this method
-  const RandomUserID = generateRandomString(); //generates random user id
+  const randomUserID = generateRandomString(); //generates random user id
   const userEmail = req.body.email; //gets body info from form inside register view
-  const userPassword = req.body.password; //same as above, but for password
+  const userPassword = req.body.password;
+  const hashedPassword = bcrypt.hashSync(userPassword, 10); //same as above, but for password
   if (!userEmail || !userPassword) {  //if no email/password is entered, error!
     res.status(400).send('Please enter both email and password!');
   }
@@ -102,11 +106,15 @@ app.post('/register', (req, res) => { //posts form info to this method
   if (result) { //if there is duplciate emails, error
     res.status(400).send("Email already registered, please use another email.");
   }
+  console.log(`ID: ${randomUserID}`);
+  console.log(`Email: ${userEmail}`);
+  console.log(`Hashed Password: ${hashedPassword}`);
   //creates new userid, then assigsn it to cookies value, to be used across website
-  users[RandomUserID] = { id: RandomUserID, email: userEmail, password: userPassword };
-  res.cookie('user_id', RandomUserID);
+  users[randomUserID] = { id: randomUserID, email: userEmail, password: hashedPassword };
+  res.cookie('user_id', randomUserID);
   res.redirect('/urls');
 });
+
  
 
 
@@ -196,8 +204,9 @@ app.post('/login', (req, res) => {
   if (!user) {
     return res.status(403).send('No user found associated with that email');
   }
-  if (user.password !== userPassword) {
-    return res.status(403).send('No user found associated with that password');
+  const isPasswordCorrect = bcrypt.compareSync(userPassword, user.password);
+  if (!isPasswordCorrect) {
+    return res.status(403).send('Incorrect password');
   }
   res.cookie('user_id', user.id); //sets cookies value using current users value id which is used as the username to be displayed top right off web pages when logged in
   res.redirect('/urls');
@@ -217,7 +226,7 @@ app.get('/u/:id', (req, res) => {
     return res.status(404).render('urls_show', { message: 'Short URL not found in the database' });
   }
 
-  res.redirect(longURL); //if urlDatabase has a longURL value attached to the key which is id, it'll redirect webpage to a new site
+  res.redirect(longURL.longURL); //if urlDatabase has a longURL value attached to the key which is id, it'll redirect webpage to a new site
 });
 
 //outputs long url id, and shortURl id on path /urls/:id
@@ -264,7 +273,6 @@ app.post('/urls/:id/delete', (req, res) => {
 app.get('/', (req, res) => {
   res.send('Hello'); //sends "Hello" to / endpoint path
 });
-console.log(users);
 //allows server to listen for events
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}`);
