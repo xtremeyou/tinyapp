@@ -61,7 +61,7 @@ app.get('/urls.json', (req, res) => {
 app.get('/urls', (req, res) => {
   const templateVars = {
     urls: urlDatabase,//allows us to use URLdatabase key/value pairs inside our urls_index view file
-    user: users[req.cookies['user_id']] || null
+    user: users[req.cookies['user_id']]
   };
   res.render('urls_index', templateVars); //renders the page, and allows use of templateVars
 });
@@ -104,6 +104,10 @@ app.get('/register', (req, res) => {
 //console.logs both longURl and shortURl
 //redirects shortURl to urls_show view
 app.post('/urls', (req, res) => {
+  const user = users[req.cookies['user_id']];
+  if (!user) {
+    return res.status(403).send('<h1>You need to login first to shorten URLs</h1>');
+  }
   const longURL = req.body.longURL; //assigns variable longURl to req.body.longURl, which allows variable longURl to have longURl's body data
   const shortURLID = generateRandomString(); //assigns variable shortURLID a random string of 6 characters
   urlDatabase[shortURLID] = longURL; // shortURlID now replaces urlDatabases key, and a longURl to it as a value?
@@ -122,13 +126,14 @@ app.post('/urls/:id', (req, res) => {
 
 //connects the view file to our server as well as adding a path to it
 app.get('/urls/new', (req, res) => {
-  const templateVars = {
-    urls: urlDatabase,//allows us to use URLdatabase key/value pairs inside our urls_index view file
-    user: users[req.cookies['user_id']] //lets user_id switch between pages and keep cookies
-  };
-  if (!templateVars.user) {
+  const user = users[req.cookies['user_id']];
+  if (!user) {
     res.redirect('/login');
   }
+  const templateVars = {
+    urls: urlDatabase,//allows us to use URLdatabase key/value pairs inside our urls_index view file
+    user: user
+  };
   res.render('urls_new', templateVars); //renders a new view "urls_new"
 });
 

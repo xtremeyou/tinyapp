@@ -19,22 +19,22 @@
       </div>
     </div>
     
-    <%if (user) { %>
+    <% if (user) { %>
     <div style="padding: 5px;">
-      <form action="/logout" method="POST" input="text">
+      <form action="/logout" method="POST">
         <div class="form-group mb-2">
           <label for="user_id" style="padding: 3px;"><strong>Logged in as: <%= user.id %>!</strong></label>
           <button type="submit" class="btn btn-primary">Logout</button>
         </div>
       </form>
     </div>
-    <%} else { %>
+    <% } else { %>
       <div id="navbarNavAltMarkup">
         <div class="navbar-nav">
           <a class="nav-item nav-link" href="/login">Login</a>
           <a class="nav-item nav-link" href="/register">Register</a>
         </div>
       </div>
-    <%} %>
+    <% } %>
   </nav>
 </header>
