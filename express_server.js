@@ -18,6 +18,8 @@ app.use(cookieSession({
 
 app.set('view engine', 'ejs');
 
+
+//user database
 const users = {
   userRandomID: {
     id: "userRandomID",
@@ -54,8 +56,8 @@ app.get('/urls', (req, res) => {
   if (!userId) {
     return res.status(403).send('You need to log in to view your URLs.');
   }
-  
-  const userUrls = urlsForUser(userId, urlDatabase);
+  //variable userUrls assigns the helper function with two variables
+  const userUrls = urlsForUser(userId, urlDatabase); //stores the users id and database for use in our views
   const templateVars = {
     urls: urlDatabase,
     url: userUrls,
@@ -110,6 +112,7 @@ app.post('/urls', (req, res) => {
     return res.status(403).send('<h1>You need to login first to shorten URLs</h1>');
   }
   
+  //allows the webpage to store long urls
   const longURL = req.body.longURL;
   const shortURLID = generateRandomString();
   urlDatabase[shortURLID] = {
@@ -120,6 +123,7 @@ app.post('/urls', (req, res) => {
   res.redirect('/urls');
 });
 
+//blocks access for using specific parts of the site if not logged in, and displays error message.
 app.post('/urls/:id', (req, res) => {
   const id = req.params.id;
   const newLongURL = req.body.longURL;
@@ -154,6 +158,7 @@ app.get('/urls/new', (req, res) => {
   res.render('urls_new', templateVars); //renders a new view "urls_new"
 });
 
+//lets a user to login, if already logged in it will redirect them to the main page
 app.get('/login', (req, res) => {
   const templateVars = {
     urls: urlDatabase,
@@ -165,7 +170,7 @@ app.get('/login', (req, res) => {
   res.render('login', templateVars);
 });
 
-
+// the magic for how a user logs in ;)
 app.post('/login', (req, res) => {
   const userEmail = req.body.email;
   const userPassword = req.body.password;
@@ -190,7 +195,7 @@ app.post('/login', (req, res) => {
 
 app.post('/logout', (req, res) => {
   req.session = null;
-  res.redirect('/login'); //redirects url to /urls
+  res.redirect('/login'); //redirects url to /urls when logging out
 });
 
 
@@ -225,6 +230,7 @@ app.get('/urls/:id', (req, res) => {
   res.render('urls_show', templateVars); // Pass URL details if URL exists
 });
 
+//allows user to delete database urls that are stored
 app.post('/urls/:id/delete', (req, res) => {
   const id = req.params.id;
   const userId = req.session.user_id;
