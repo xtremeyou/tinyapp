@@ -9,6 +9,12 @@ A URL shortener application built with Express.js and EJS. This app allows users
 - View and manage shortened URLs
 - Redirect from shortened URLs to the original long URL
 
+## Screenshots
+
+!["Screenshot of URLs ID page"](https://github.com/xtremeyou/tinyapp/blob/main/docs/urls-id%20page.png?raw=true)
+!["Screenshot of URLs Index page"](https://github.com/xtremeyou/tinyapp/blob/main/docs/urls-index%20page.png?raw=true)
+!["Screenshot of URLs New page"](https://github.com/xtremeyou/tinyapp/blob/main/docs/urls-new%20page.png?raw=true)
+
 ## Installation
 
 1. **Clone the repository:**
