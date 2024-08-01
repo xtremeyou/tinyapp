@@ -1,16 +1,9 @@
 <header>
   <nav class="navbar navbar-expand-md navbar-dark bg-success">
     <a class="navbar-brand" href="/urls">TinyApp</a>
-    <button
-      class="navbar-toggler"
-      type="button"
-      data-toggle="collapse"
-      data-target="#navbarNavAltMarkup"
-      aria-controls="navbarNavAltMarkup"
-      aria-expanded="false"
-      aria-label="Toggle navigation"
-    >
-  <span class="navbar-toggler-icon"></span>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup"
+      aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
     </button>
     <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
       <div class="navbar-nav">
@@ -18,23 +11,23 @@
         <a class="nav-item nav-link" href="/urls/new">Create New URL</a>
       </div>
     </div>
-    
+
     <% if (user) { %>
-    <div style="padding: 5px;">
-      <form action="/logout" method="POST">
-        <div class="form-group mb-2">
-          <label for="user_id" style="padding: 3px;"><strong>Logged in as: <%= user.id %>!</strong></label>
-          <button type="submit" class="btn btn-primary">Logout</button>
-        </div>
-      </form>
-    </div>
-    <% } else { %>
-      <div id="navbarNavAltMarkup">
-        <div class="navbar-nav">
-          <a class="nav-item nav-link" href="/login">Login</a>
-          <a class="nav-item nav-link" href="/register">Register</a>
-        </div>
+      <div style="padding: 5px;">
+        <form action="/logout" method="POST">
+          <div class="form-group mb-2">
+            <label for="user_id" style="padding: 3px;"><strong>Logged in as: <%= user.id %>!</strong></label>
+            <button type="submit" class="btn btn-primary">Logout</button>
+          </div>
+        </form>
       </div>
-    <% } %>
+      <% } else { %>
+        <div id="navbarNavAltMarkup">
+          <div class="navbar-nav">
+            <a class="nav-item nav-link" href="/login">Login</a>
+            <a class="nav-item nav-link" href="/register">Register</a>
+          </div>
+        </div>
+        <% } %>
   </nav>
 </header>

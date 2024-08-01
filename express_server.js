@@ -1,7 +1,7 @@
 /* eslint-disable camelcase */
 const express = require('express');
 const cookieSession = require('cookie-session');
-const { generateRandomString, getUserByEmail, urlsForUser} = require('./helpers');
+const { generateRandomString, getUserByEmail, urlsForUser } = require('./helpers');
 const bcrypt = require("bcryptjs");
 const app = express();
 const PORT = 8080;
@@ -90,7 +90,7 @@ app.post('/register', (req, res) => { //posts form info to this method
   res.redirect('/urls');
 });
 
- 
+
 app.get('/register', (req, res) => {
   const templateVars = {
     urls: urlDatabase,
@@ -136,7 +136,7 @@ app.post('/urls', (req, res) => {
   if (!userId) {
     return res.status(403).send('<h1>You need to login first to shorten URLs</h1>');
   }
-  
+
   //allows the webpage to store long urls
   const longURL = req.body.longURL;
   const shortURLID = generateRandomString();
@@ -212,7 +212,7 @@ app.get('/urls/:id', (req, res) => {
     user: users[req.session.user_id],
     message: null
   };
-  
+
   res.render('urls_show', templateVars); // Pass URL details if URL exists
 });
 
