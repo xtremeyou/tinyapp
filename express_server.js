@@ -1,12 +1,9 @@
 /* eslint-disable camelcase */
 const express = require('express');
-const cookieParser = require('cookie-parser');
 const cookieSession = require('cookie-session');
 const bcrypt = require("bcryptjs");
 const app = express();
 const PORT = 8080;
-
-app.use(cookieParser());
 
 app.use(express.urlencoded({ extended: true })); //allow us to read req.params.body in human readable form
 
@@ -33,20 +30,20 @@ const generateRandomString = () => {
 };
 
 //checks if existing emails, or other data exist inside user database
-const getUserInfo = function(email) {
-  for (const userId in users) {
-    if (users[userId].email === email) {
-      return users[userId]; // Return the user object if email matches
+const getUserByEmail = (email, database) => {
+  for (const userId in database) {
+    if (database[userId].email === email) {
+      return database[userId]; // Return the user object if email matches
     }
   }
-  return null;
+  return null; // Return null if no user found
 };
 
-const urlsForUser = (id) => {
+const urlsForUser = (id, database) => {
   const userUrls = {};
-  for (const urlId in urlDatabase) {
-    if (urlDatabase[urlId].userID === id) {
-      userUrls[urlId] = urlDatabase[urlId];
+  for (const urlId in database) {
+    if (database[urlId].userID === id) {
+      userUrls[urlId] = database[urlId];
     }
   }
   return userUrls;
@@ -141,8 +138,6 @@ app.get('/register', (req, res) => {
 });
 
 //posts data from longURl to the database with a generated shortURl
-//console.logs both longURl and shortURl
-//redirects shortURl to urls_show view
 app.post('/urls', (req, res) => {
   const userId = req.session.user_id;
   if (!userId) {
@@ -247,10 +242,6 @@ app.get('/urls/:id', (req, res) => {
   if (!urlData) {
     return res.status(404).render('urls_show', { message: 'Short URL not found in the database' });
   }
-
-  console.log("URL Data:", urlData); // Debugging
-  console.log("Long URL:", urlData.longURL); // Debugging
-
 
   const templateVars = {
     id: id,
