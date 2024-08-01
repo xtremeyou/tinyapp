@@ -1,6 +1,6 @@
 const { assert } = require('chai');
 
-const { getUserByEmail } = require('../views/helpers');
+const { getUserByEmail } = require('../views/partials/helpers');
 
 const testUsers = {
   "userRandomID": {
