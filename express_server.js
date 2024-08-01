@@ -1,6 +1,7 @@
 /* eslint-disable camelcase */
 const express = require('express');
 const cookieSession = require('cookie-session');
+const { generateRandomString, getUserByEmail, urlsForUser} = require('./views/helpers');
 const bcrypt = require("bcryptjs");
 const app = express();
 const PORT = 8080;
@@ -17,38 +18,6 @@ app.use(cookieSession({
 
 app.set('view engine', 'ejs');
 
-//create function to generate random string
-const generateRandomString = () => {
-  const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-  let randomString = '';
-
-  while (randomString.length < 6) {
-    randomString += characters[Math.floor(Math.random() * characters.length)];
-  }
-
-  return randomString;
-};
-
-//checks if existing emails, or other data exist inside user database
-const getUserByEmail = (email, database) => {
-  for (const userId in database) {
-    if (database[userId].email === email) {
-      return database[userId]; // Return the user object if email matches
-    }
-  }
-  return null; // Return null if no user found
-};
-
-const urlsForUser = (id, database) => {
-  const userUrls = {};
-  for (const urlId in database) {
-    if (database[urlId].userID === id) {
-      userUrls[urlId] = database[urlId];
-    }
-  }
-  return userUrls;
-};
-
 const users = {
   userRandomID: {
     id: "userRandomID",
@@ -61,9 +30,6 @@ const users = {
     password: bcrypt.hashSync("dishwasher-funk", 10),
   },
 };
-
-
-
 
 //creates a database to use our templates
 const urlDatabase = {
@@ -89,7 +55,7 @@ app.get('/urls', (req, res) => {
     return res.status(403).send('You need to log in to view your URLs.');
   }
   
-  const userUrls = urlsForUser(userId);
+  const userUrls = urlsForUser(userId, urlDatabase);
   const templateVars = {
     urls: urlDatabase,
     url: userUrls,
@@ -108,9 +74,9 @@ app.post('/register', (req, res) => { //posts form info to this method
   if (!userEmail || !userPassword) {  //if no email/password is entered, error!
     res.status(400).send('Please enter both email and password!');
   }
-  const result = getUserInfo(userEmail); // asssigns users object userid key to result
+  const existingUser = getUserByEmail(userEmail, users); // asssigns users object userid key to result
   //also callsback to funciton using userEmail as a parameter
-  if (result) { //if there is duplciate emails, error
+  if (existingUser) { //if there is duplciate emails, error
     res.status(400).send("Email already registered, please use another email.");
   }
   console.log(`ID: ${randomUserID}`);
@@ -128,7 +94,7 @@ app.post('/register', (req, res) => { //posts form info to this method
 
 app.get('/register', (req, res) => {
   const templateVars = {
-    urls: urlDatabase,//allows us to use URLdatabase key/value pairs inside our view files
+    urls: urlDatabase,
     user: users[req.session.user_id] //has users current login info stored here, to be used across website
   };
   if (templateVars.user) {
@@ -147,6 +113,7 @@ app.post('/urls', (req, res) => {
   const longURL = req.body.longURL;
   const shortURLID = generateRandomString();
   urlDatabase[shortURLID] = {
+    urls: urlDatabase,
     longURL,
     userID: userId
   };
@@ -189,7 +156,7 @@ app.get('/urls/new', (req, res) => {
 
 app.get('/login', (req, res) => {
   const templateVars = {
-    urls: urlDatabase, //allows us to use URLdatabase key/value pairs inside our view files
+    urls: urlDatabase,
     user: users[req.session.user_id]
   };
   if (templateVars.user) {
@@ -202,17 +169,21 @@ app.get('/login', (req, res) => {
 app.post('/login', (req, res) => {
   const userEmail = req.body.email;
   const userPassword = req.body.password;
+
   if (!userEmail || !userPassword) {
     return res.status(403).send('Please enter both an email and password');
   }
-  const user = getUserInfo(userEmail);//assign the user object to user variable with param userEmail
+
+  const user = getUserByEmail(userEmail, users);//assign the user object to user variable with param userEmail
   if (!user) {
     return res.status(403).send('No user found associated with that email');
   }
+
   const isPasswordCorrect = bcrypt.compareSync(userPassword, user.password);
   if (!isPasswordCorrect) {
     return res.status(403).send('Incorrect password');
   }
+
   req.session.user_id = user.id;
   res.redirect('/urls');
 });
@@ -244,9 +215,9 @@ app.get('/urls/:id', (req, res) => {
   }
 
   const templateVars = {
-    id: id,
-    longURL: urlData.longURL,
+    id,
     urls: urlDatabase,
+    longURL: urlData.longURL,
     user: users[req.session.user_id],
     message: null
   };
@@ -280,5 +251,5 @@ app.get('/', (req, res) => {
 });
 //allows server to listen for events
 app.listen(PORT, () => {
-  console.log(`Example app listening on port ${PORT}`);
+  console.log(`App listening on port ${PORT}`);
 });
