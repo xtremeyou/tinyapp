@@ -19,8 +19,8 @@ A URL shortener application built with Express.js and EJS. This app allows users
 
 1. **Clone the repository:**
 
-   git clone https://github.com/yourusername/url-shortener-app.git
-   cd url-shortener-app
+   git clone https://github.com/xtremeyou/tinyapp
+   cd tinyapp
 
 2. **Install dependencies:**
 
@@ -36,7 +36,6 @@ A URL shortener application built with Express.js and EJS. This app allows users
 
 ## Usage
 
-- **Home Page**: Displays a greeting message.
 - **Register**: Create a new account.
 - **Login**: Log into your account.
 - **Shorten URL**: Submit a long URL to shorten it.
