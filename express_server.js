@@ -54,7 +54,7 @@ app.get('/urls.json', (req, res) => {
 app.get('/urls', (req, res) => {
   const userId = req.session.user_id;
   if (!userId) {
-    return res.status(403).send('You need to log in to view your URLs.');
+    return res.status(403).send('You need to log in to view URLs.');
   }
   //variable userUrls assigns the helper function with two variables
   const userUrls = urlsForUser(userId, urlDatabase); //stores the users id and database for use in our views
@@ -196,24 +196,13 @@ app.get('/login', (req, res) => {
 });
 
 
-app.get('/u/:id', (req, res) => {
-  const id = req.params.id; //assigns id to websites path /urls/id
-  const longURL = urlDatabase[id]; //assigns longurl variable to urlDatabases id, which is the value of URLDatabases key/value pairs
-  if (!longURL) {
-    // Render the `urls_show` view with an error message if the URL is not found
-    return res.status(404).render('urls_show', { message: 'Short URL not found in the database' });
-  }
-
-  res.redirect(longURL.longURL); //if urlDatabase has a longURL value attached to the key which is id, it'll redirect webpage to a new site
-});
-
 //outputs long url id, and shortURl id on path /urls/:id
 app.get('/urls/:id', (req, res) => {
   const id = req.params.id;
   const urlData = urlDatabase[id];
 
   if (!urlData) {
-    return res.status(404).render('urls_show', { message: 'Short URL not found in the database' });
+    return res.status(404).send('Short URL not found in the database');
   }
 
   const templateVars = {
@@ -248,10 +237,17 @@ app.post('/urls/:id/delete', (req, res) => {
   res.redirect('/urls');
 });
 
-//says hello when at endpointa
-app.get('/', (req, res) => {
-  res.send('Hello'); //sends "Hello" to / endpoint path
+app.get('/u/:id', (req, res) => {
+  const id = req.params.id; //assigns id to websites path /urls/id
+  const longURL = urlDatabase[id]; //assigns longurl variable to urlDatabases id, which is the value of URLDatabases key/value pairs
+  if (!longURL) {
+    // Render the `urls_show` view with an error message if the URL is not found
+    return res.status(404).send('Short URL not found in the database');
+  }
+
+  res.redirect(longURL.longURL); //if urlDatabase has a longURL value attached to the key which is id, it'll redirect webpage to a new site
 });
+
 //allows server to listen for events
 app.listen(PORT, () => {
   console.log(`App listening on port ${PORT}`);
