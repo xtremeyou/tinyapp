@@ -91,9 +91,6 @@ app.post('/register', (req, res) => { //posts form info to this method
 });
 
  
-
-
-
 app.get('/register', (req, res) => {
   const templateVars = {
     urls: urlDatabase,
@@ -103,6 +100,34 @@ app.get('/register', (req, res) => {
     return res.redirect('/urls');
   }
   res.render('register', templateVars); //renders register and allows use of templateVar inside /register
+});
+
+// the magic for how a user logs in ;)
+app.post('/login', (req, res) => {
+  const userEmail = req.body.email;
+  const userPassword = req.body.password;
+
+  if (!userEmail || !userPassword) {
+    return res.status(403).send('Please enter both an email and password');
+  }
+
+  const user = getUserByEmail(userEmail, users);//assign the user object to user variable with param userEmail
+  if (!user) {
+    return res.status(403).send('No user found associated with that email');
+  }
+
+  const isPasswordCorrect = bcrypt.compareSync(userPassword, user.password);
+  if (!isPasswordCorrect) {
+    return res.status(403).send('Incorrect password');
+  }
+
+  req.session.user_id = user.id;
+  res.redirect('/urls');
+});
+
+app.post('/logout', (req, res) => {
+  req.session = null;
+  res.redirect('/login'); //redirects url to /urls when logging out
 });
 
 //posts data from longURl to the database with a generated shortURl
@@ -168,34 +193,6 @@ app.get('/login', (req, res) => {
     res.redirect('/urls');
   }
   res.render('login', templateVars);
-});
-
-// the magic for how a user logs in ;)
-app.post('/login', (req, res) => {
-  const userEmail = req.body.email;
-  const userPassword = req.body.password;
-
-  if (!userEmail || !userPassword) {
-    return res.status(403).send('Please enter both an email and password');
-  }
-
-  const user = getUserByEmail(userEmail, users);//assign the user object to user variable with param userEmail
-  if (!user) {
-    return res.status(403).send('No user found associated with that email');
-  }
-
-  const isPasswordCorrect = bcrypt.compareSync(userPassword, user.password);
-  if (!isPasswordCorrect) {
-    return res.status(403).send('Incorrect password');
-  }
-
-  req.session.user_id = user.id;
-  res.redirect('/urls');
-});
-
-app.post('/logout', (req, res) => {
-  req.session = null;
-  res.redirect('/login'); //redirects url to /urls when logging out
 });
 
 
