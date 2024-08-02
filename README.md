@@ -25,8 +25,14 @@ A URL shortener application built with Express.js and EJS. This app allows users
 2. **Install dependencies:**
 
    Make sure you have Node.js installed. Then run:
-
-   npm install "various tools inside package.json"
+   
+   `npm install brycypt js`, you'll want it to hash the passwords
+   `npm install cookie-session` to help encrypt the cookies
+   `npm install ejs` to use javscript on the serverside when editing html forms
+   `npm install express` to use express for the backend server 
+   `npm install --save-dev nodemon` to save as a dev dependency
+   `npm install --save-dev mocha chai` to use our tests!
+  
 
 3. **Run the application:**
 

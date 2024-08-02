@@ -45,6 +45,10 @@ const urlDatabase = {
   },
 };
 
+app.get('/', (req, res) => {
+
+  res.redirect('/login');
+});
 
 app.get('/urls.json', (req, res) => {
   res.json(urlDatabase); //sends urlDatabase to path /urls.json in json form
@@ -81,9 +85,7 @@ app.post('/register', (req, res) => { //posts form info to this method
   if (existingUser) { //if there is duplciate emails, error
     res.status(400).send("Email already registered, please use another email.");
   }
-  console.log(`ID: ${randomUserID}`);
-  console.log(`Email: ${userEmail}`);
-  console.log(`Hashed Password: ${hashedPassword}`);
+ 
   //creates new userid, then assigsn it to cookies value, to be used across website
   users[randomUserID] = { id: randomUserID, email: userEmail, password: hashedPassword };
   req.session.user_id = randomUserID;
