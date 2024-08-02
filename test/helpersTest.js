@@ -1,6 +1,6 @@
 const { assert } = require('chai');
 
-const { getUserByEmail, generateRandomString, urlsForUser } = require('../helpers');
+const { getUserByEmail, generateRandomString, urlsForUser } = require('../helpers/helpers');
 
 const testUsers = {
   "userRandomID": {
@@ -27,7 +27,7 @@ const testUrlDatabase = {
 };
 
 
-describe('getUserByEmail', function () {
+describe('getUserByEmail', function() {
   it('should return a user with valid email', function() {
     const user = getUserByEmail("user@example.com", testUsers);
     const expectedUserID = "userRandomID";
@@ -39,7 +39,7 @@ describe('getUserByEmail', function () {
   });
 });
 
-describe('generateRandomString', function () {
+describe('generateRandomString', function() {
   it('Should return a tring with a length of 6', function() {
     const randomString = generateRandomString();
     assert.lengthOf(randomString, 6);
@@ -51,7 +51,7 @@ describe('generateRandomString', function () {
   });
 });
 
-describe('urlForUser', function () {
+describe('urlForUser', function() {
   it('should return URLs associated with the given user ID', function() {
     const userUrls = urlsForUser('userRandomID', testUrlDatabase);
     const expectedUrls = {

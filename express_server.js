@@ -1,7 +1,7 @@
 /* eslint-disable camelcase */
 const express = require('express');
 const cookieSession = require('cookie-session');
-const { generateRandomString, getUserByEmail, urlsForUser } = require('./helpers');
+const { generateRandomString, getUserByEmail, urlsForUser } = require('./helpers/helpers');
 const bcrypt = require("bcryptjs");
 const app = express();
 const PORT = 8080;
